@@ -1,34 +1,67 @@
+"use client";
+
+import { useRef, type CSSProperties } from "react";
 import type { Project } from "@/lib/projects";
 
-export function ProjectCard({ project }: { project: Project }) {
+export function ProjectCard({ project, index }: { project: Project; index: number }) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const [c1, c2] = project.accent;
+
+  const onMove = (e: React.PointerEvent<HTMLAnchorElement>) => {
+    const el = ref.current;
+    if (!el || e.pointerType !== "mouse") return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width;
+    const py = (e.clientY - r.top) / r.height;
+    el.style.setProperty("--rx", `${(0.5 - py) * 12}deg`);
+    el.style.setProperty("--ry", `${(px - 0.5) * 14}deg`);
+    el.style.setProperty("--mx", `${px * 100}%`);
+    el.style.setProperty("--my", `${py * 100}%`);
+  };
+  const onLeave = () => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.setProperty("--rx", "0deg");
+    el.style.setProperty("--ry", "0deg");
+  };
+
   return (
-    <article className="group relative flex flex-col justify-between gap-8 rounded-2xl border border-border bg-surface p-8 transition-all duration-300 ease-out hover:-translate-y-1 hover:border-border-hover hover:bg-surface-hover sm:p-10">
-      <div className="flex flex-col gap-3">
-        <h3 className="text-lg font-medium tracking-tight text-foreground sm:text-xl">
-          {project.name}
-        </h3>
-        <p className="text-sm leading-relaxed text-muted">
-          {project.description}
-        </p>
+    <a
+      ref={ref}
+      href={project.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      onPointerMove={onMove}
+      onPointerLeave={onLeave}
+      aria-label={`${project.name} — view website`}
+      className="portal-card group"
+      style={{ "--c1": c1, "--c2": c2 } as CSSProperties}
+    >
+      <span className="portal-card__glare" aria-hidden />
+      <span className="portal-card__orb" aria-hidden />
+
+      <div className="relative flex items-start justify-between">
+        <span className="font-mono text-xs tracking-widest text-white/40">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <span className="portal-card__tag">{project.tag}</span>
       </div>
 
-      <a
-        href={project.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex w-fit items-center gap-2 text-sm font-medium text-foreground"
-      >
-        <span className="relative">
-          View website
-          <span className="absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-foreground transition-transform duration-300 ease-out group-hover:scale-x-100" />
+      <div className="relative mt-16 flex flex-col gap-3">
+        <h3 className="text-2xl font-semibold tracking-tight text-white sm:text-[1.7rem]">
+          {project.name}
+        </h3>
+        <p className="text-sm leading-relaxed text-white/60">{project.description}</p>
+      </div>
+
+      <span className="relative mt-8 inline-flex items-center gap-3 text-sm font-medium text-white">
+        <span className="portal-card__btn" aria-hidden>
+          <span className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+            ↗
+          </span>
         </span>
-        <span
-          aria-hidden="true"
-          className="transition-transform duration-300 ease-out group-hover:translate-x-1"
-        >
-          &rarr;
-        </span>
-      </a>
-    </article>
+        Enter portal
+      </span>
+    </a>
   );
 }

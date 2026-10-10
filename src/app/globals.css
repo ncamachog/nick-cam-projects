@@ -1,58 +1,439 @@
 @import "tailwindcss";
 
 :root {
-  --color-background: #08090a;
-  --color-foreground: #f2f2f0;
-  --color-muted: #8f9095;
-  --color-border: rgba(255, 255, 255, 0.09);
-  --color-border-hover: rgba(255, 255, 255, 0.18);
-  --color-surface: rgba(255, 255, 255, 0.02);
-  --color-surface-hover: rgba(255, 255, 255, 0.045);
+  --color-background: #05060d;
+  --color-foreground: #f4f5fb;
+  --color-muted: #9a9cb4;
+  --neon-cyan: #22d3ee;
+  --neon-violet: #a855f7;
+  --neon-magenta: #ff2bd6;
+  --neon-lime: #b6ff3b;
+  --intro: 3.1s; /* page entrances wait for the preloader */
 }
 
 @theme inline {
   --color-background: var(--color-background);
   --color-foreground: var(--color-foreground);
   --color-muted: var(--color-muted);
-  --color-border: var(--color-border);
-  --color-border-hover: var(--color-border-hover);
-  --color-surface: var(--color-surface);
-  --color-surface-hover: var(--color-surface-hover);
-
   --font-sans: var(--font-geist-sans), system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
-body {
+@property --a {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+@property --r {
+  syntax: "<percentage>";
+  inherits: false;
+  initial-value: 0%;
+}
+
+html {
   background: var(--color-background);
+}
+body {
+  background:
+    radial-gradient(60% 40% at 50% 0%, rgba(168, 85, 247, 0.16), transparent 70%),
+    radial-gradient(50% 40% at 90% 60%, rgba(34, 211, 238, 0.1), transparent 70%),
+    radial-gradient(50% 40% at 5% 80%, rgba(255, 43, 214, 0.1), transparent 70%),
+    var(--color-background);
   color: var(--color-foreground);
   font-family: var(--font-sans);
+  overflow-x: clip;
 }
-
 ::selection {
-  background: var(--color-foreground);
-  color: var(--color-background);
+  background: var(--neon-magenta);
+  color: #fff;
+}
+:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 4px;
+  border-radius: 12px;
 }
 
-.bg-radial-fade {
-  background: radial-gradient(
-    circle at 50% -10%,
-    rgba(255, 255, 255, 0.08),
-    transparent 60%
-  );
+/* ---------- Entrances ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px) rotateX(14deg) scale(0.96);
+  transform-origin: 50% 100%;
+  transition:
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0s),
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) var(--d, 0s);
 }
-
-@keyframes fade-up {
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+.intro {
+  opacity: 0;
+  animation: intro-up 1s cubic-bezier(0.16, 1, 0.3, 1) calc(var(--intro) + var(--d, 0s)) forwards;
+}
+@keyframes intro-up {
   from {
     opacity: 0;
-    transform: translateY(12px);
+    transform: translateY(36px) scale(0.97);
+    filter: blur(8px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: none;
+    filter: blur(0);
   }
 }
 
-.animate-fade-up {
-  animation: fade-up 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+/* ---------- Hero tunnel ---------- */
+.portal-scene {
+  --rx: 0deg;
+  --ry: 0deg;
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  perspective: 900px;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx)) rotateY(var(--ry));
+  transition: transform 0.4s ease-out;
+}
+.tunnel-ring {
+  position: absolute;
+  width: min(62vmin, 560px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 1.5px solid var(--neon-cyan);
+  box-shadow:
+    0 0 22px rgba(34, 211, 238, 0.55),
+    inset 0 0 26px rgba(168, 85, 247, 0.4);
+  opacity: 0;
+  animation: tunnel 7.2s cubic-bezier(0.3, 0.1, 0.5, 1) infinite;
+  animation-delay: calc(var(--i) * -0.8s);
+}
+.tunnel-ring:nth-child(3n) {
+  border-color: var(--neon-magenta);
+  box-shadow:
+    0 0 24px rgba(255, 43, 214, 0.6),
+    inset 0 0 28px rgba(34, 211, 238, 0.45);
+}
+.tunnel-ring:nth-child(3n + 1) {
+  border-color: var(--neon-violet);
+}
+@keyframes tunnel {
+  0% {
+    transform: scale(0.04) rotate(0deg);
+    opacity: 0;
+  }
+  18% {
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(2.7) rotate(90deg);
+    opacity: 0;
+  }
+}
+.portal-core {
+  position: absolute;
+  width: min(34vmin, 320px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.28), rgba(34, 211, 238, 0.1) 55%, transparent 70%);
+  filter: blur(6px);
+  animation: breathe 5s ease-in-out infinite;
+}
+@keyframes breathe {
+  50% {
+    transform: scale(1.25);
+    opacity: 0.7;
+  }
+}
+
+/* ---------- Neon type ---------- */
+.neon-text {
+  background: linear-gradient(100deg, #fff 10%, var(--neon-cyan) 35%, var(--neon-violet) 60%, var(--neon-magenta) 85%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer 6s linear infinite;
+  filter: drop-shadow(0 0 22px rgba(168, 85, 247, 0.45));
+}
+@keyframes shimmer {
+  to {
+    background-position: -220% 0;
+  }
+}
+
+/* ---------- Marquee ---------- */
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 34s linear infinite;
+}
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ---------- Portal cards ---------- */
+.portal-card {
+  --rx: 0deg;
+  --ry: 0deg;
+  --mx: 50%;
+  --my: 0%;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  min-height: 340px;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  border-radius: 28px;
+  padding: 1.75rem;
+  border: 1.5px solid transparent;
+  background:
+    radial-gradient(120% 90% at var(--mx) var(--my), color-mix(in srgb, var(--c1) 18%, transparent), transparent 60%) padding-box,
+    linear-gradient(#0c0d1b, #0c0d1b) padding-box,
+    conic-gradient(
+      from var(--a),
+      var(--c1),
+      transparent 18%,
+      transparent 45%,
+      var(--c2) 62%,
+      transparent 80%,
+      var(--c1)
+    )
+      border-box;
+  animation: spin 6s linear infinite;
+  transform: perspective(1000px) rotateX(var(--rx)) rotateY(var(--ry)) translateZ(0);
+  transition:
+    transform 0.25s ease-out,
+    box-shadow 0.4s ease;
+  box-shadow:
+    0 0 28px -10px color-mix(in srgb, var(--c1) 55%, transparent),
+    0 30px 60px -30px rgba(0, 0, 0, 0.8);
+}
+.portal-card:hover {
+  box-shadow:
+    0 0 50px -8px color-mix(in srgb, var(--c1) 60%, transparent),
+    0 0 90px -20px color-mix(in srgb, var(--c2) 60%, transparent);
+}
+@keyframes spin {
+  to {
+    --a: 360deg;
+  }
+}
+.portal-card__glare {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(260px circle at var(--mx) var(--my), rgba(255, 255, 255, 0.14), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.portal-card:hover .portal-card__glare {
+  opacity: 1;
+}
+.portal-card__orb {
+  position: absolute;
+  right: -60px;
+  bottom: -60px;
+  z-index: -1;
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  border: 2px solid var(--c1);
+  box-shadow:
+    0 0 30px color-mix(in srgb, var(--c1) 70%, transparent),
+    inset 0 0 40px color-mix(in srgb, var(--c2) 60%, transparent);
+  opacity: 0.28;
+  transition:
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s;
+}
+.portal-card:hover .portal-card__orb {
+  transform: scale(1.5) rotate(40deg);
+  opacity: 0.9;
+}
+.portal-card__tag {
+  border: 1px solid color-mix(in srgb, var(--c1) 55%, transparent);
+  border-radius: 999px;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c1);
+  background: color-mix(in srgb, var(--c1) 10%, transparent);
+}
+.portal-card__btn {
+  display: inline-flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--c1);
+  color: var(--c1);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--c1) 50%, transparent);
+  transition:
+    background 0.3s,
+    color 0.3s;
+}
+.portal-card:hover .portal-card__btn {
+  background: var(--c1);
+  color: #05060d;
+}
+
+/* ---------- Cursor glow ---------- */
+.cursor-glow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 0;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.22), rgba(34, 211, 238, 0.08) 45%, transparent 70%);
+  mix-blend-mode: screen;
+  transition: opacity 0.6s;
+}
+
+/* ---------- Preloader ---------- */
+.portal-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background: #05060d;
+  /* the portal widens until the page shows through */
+  --r: 0%;
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--r), #000 calc(var(--r) + 0.5%));
+  animation:
+    portal-open 1s cubic-bezier(0.7, 0, 0.3, 1) 2.45s forwards,
+    portal-hide 0s linear 3.5s forwards;
+}
+@keyframes portal-open {
+  to {
+    --r: 150%;
+  }
+}
+@keyframes portal-hide {
+  to {
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+.portal-loader__stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(80vmin, 520px);
+  aspect-ratio: 1;
+  animation: stage-out 0.5s ease-in 2.3s forwards;
+}
+@keyframes stage-out {
+  to {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+.portal-loader__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--neon-cyan);
+  box-shadow:
+    0 0 28px rgba(34, 211, 238, 0.7),
+    inset 0 0 28px rgba(168, 85, 247, 0.6);
+  opacity: 0;
+  animation: loader-ring 2.2s cubic-bezier(0.2, 0.7, 0.3, 1) infinite;
+  animation-delay: calc(var(--i) * 0.42s);
+}
+.portal-loader__ring:nth-child(odd) {
+  border-color: var(--neon-magenta);
+}
+@keyframes loader-ring {
+  0% {
+    transform: scale(0.15) rotate(0deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.15) rotate(120deg);
+    opacity: 0;
+  }
+}
+.portal-loader__core {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+.portal-loader__pct {
+  font-family: var(--font-mono);
+  font-size: clamp(3.2rem, 14vmin, 6rem);
+  font-weight: 600;
+  line-height: 1;
+  color: #fff;
+  text-shadow:
+    0 0 18px var(--neon-cyan),
+    0 0 48px var(--neon-violet);
+}
+.portal-loader__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --intro: 0.3s;
+  }
+  .portal-loader {
+    mask-image: none;
+    animation:
+      loader-fade 0.3s ease-out 0.5s forwards,
+      portal-hide 0s linear 0.8s forwards;
+  }
+  @keyframes loader-fade {
+    to {
+      opacity: 0;
+    }
+  }
+  .portal-loader__ring,
+  .portal-loader__stage {
+    animation: none;
+  }
+  .portal-loader__ring {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+  .tunnel-ring {
+    animation: none;
+    opacity: 0.4;
+    transform: scale(calc(0.3 + var(--i) * 0.28));
+  }
+  .portal-scene,
+  .portal-core,
+  .neon-text,
+  .marquee,
+  .portal-card {
+    animation: none;
+  }
+  .reveal,
+  .intro {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    transition: none;
+    filter: none;
+  }
 }
