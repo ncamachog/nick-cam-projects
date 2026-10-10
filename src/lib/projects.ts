@@ -35,4 +35,10 @@ export const projects: Project[] = [
       "A corporate AI-training program site rebuilt from WordPress, with an interactive company-size plan selector and a roaming robot mascot that guides visitors across the page.",
     url: "https://skillia-next.vercel.app/",
   },
+  {
+    name: "PURA BULLA",
+    description:
+      "A Latin American creative collective's music-and-media site, built from scratch with an animated mascot preloader, editorial layouts, and a booking and media-placement service for artists.",
+    url: "https://pura-bulla.vercel.app/",
+  },
 ];
